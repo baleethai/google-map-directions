@@ -15,6 +15,7 @@
             <li data-lat="13.599096" data-lng="100.599832" data-alamat="Samut Prakan" data-keterangan="Samut Prakan"><a href="#">Samut Prakan</a></li>
         </ul>
     </div>
+    <div id="rute">Route</div>
 	
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQwSjyMauZhqMjLI4DLnR9L2s8sgnapO8&language=en&region=US"></script>
 <script type="text/javascript" src="//code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -23,6 +24,7 @@
     var map;
     var address = [];
     var route = [];
+    var rute = []; // penampung rute
 
 function initialize() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -88,6 +90,32 @@ function directions(address) {
 
 }
 
+// kita buat funsi jarak
+function jarak(alamat) {
+    var a = new google.maps.DirectionsService();
+    var b = new google.maps.DirectionsRenderer({
+        preserveViewport: true
+    });
+    // menamppilkan rute di maps
+    b.setMap(map);
+    // menamppilkan rute di div #rute
+    b.setPanel(document.getElementById('rute'));
+    // menambahkan rute baru ke array rute
+    rute.push(b);
+    // data request
+    var request = {
+        origin: gps,
+        destination: alamat,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+    a.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            b.setDirections(response);
+        }
+    });
+
+}
+
 $(function() {
     
     var infoWindows = [];
@@ -118,6 +146,7 @@ $(function() {
     $("body").on('click', '.detail', function() {
         clear();
         directions($(this).data('alamat'));
+        jarak($(this).data('alamat'));
     });
 
 });
